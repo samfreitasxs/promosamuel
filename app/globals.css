@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-inter: "Inter", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-slate-50 text-ink antialiased;
+}
+
+/* Selo de desconto reaproveitável */
+.badge-discount {
+  @apply inline-flex items-center rounded-full bg-brand px-2.5 py-1 text-xs font-bold text-white;
+}
