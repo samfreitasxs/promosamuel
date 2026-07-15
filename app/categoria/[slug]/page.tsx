@@ -1,15 +1,9 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import OfferCard from "@/components/OfferCard";
-import {
-  categories,
-  getCategoryBySlug,
-  getOffersByCategory,
-} from "@/lib/data";
+import { getCategoryBySlug, getOffersByCategory, getStores } from "@/lib/queries";
 
-export function generateStaticParams() {
-  return categories.map((c) => ({ slug: c.slug }));
-}
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,
@@ -17,7 +11,7 @@ export async function generateMetadata({
   params: Promise<{ slug: string }>;
 }): Promise<Metadata> {
   const { slug } = await params;
-  const category = getCategoryBySlug(slug);
+  const category = await getCategoryBySlug(slug);
   if (!category) return { title: "Categoria não encontrada" };
   return {
     title: `${category.name} em promoção — PromoSamuel`,
@@ -31,10 +25,14 @@ export default async function CategoryPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const category = getCategoryBySlug(slug);
+  const category = await getCategoryBySlug(slug);
   if (!category) notFound();
 
-  const offers = getOffersByCategory(category.id);
+  const [offers, stores] = await Promise.all([
+    getOffersByCategory(category.id),
+    getStores(),
+  ]);
+  const storeMap = new Map(stores.map((s) => [s.id, s]));
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10">
@@ -55,7 +53,12 @@ export default async function CategoryPage({
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {offers.map((offer) => (
-            <OfferCard key={offer.id} offer={offer} />
+            <OfferCard
+              key={offer.id}
+              offer={offer}
+              store={storeMap.get(offer.storeId)}
+              categorySlug={category.slug}
+            />
           ))}
         </div>
       )}

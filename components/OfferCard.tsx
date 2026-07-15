@@ -1,13 +1,19 @@
 import Link from "next/link";
-import type { Offer } from "@/lib/types";
+import type { Offer, Store } from "@/lib/types";
 import { discountPct } from "@/lib/types";
 import { formatBRL } from "@/lib/format";
-import { getStoreById, getCategoryBySlug } from "@/lib/data";
 
-export default function OfferCard({ offer }: { offer: Offer }) {
-  const store = getStoreById(offer.storeId);
-  const category = getCategoryBySlug(offer.categoryId);
+export default function OfferCard({
+  offer,
+  store,
+  categorySlug,
+}: {
+  offer: Offer;
+  store?: Store;
+  categorySlug?: string;
+}) {
   const pct = discountPct(offer);
+  const categoryHref = `/categoria/${categorySlug ?? offer.categoryId}`;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card transition hover:-translate-y-0.5 hover:shadow-lg">
@@ -19,9 +25,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
           className="h-44 w-full object-cover"
           loading="lazy"
         />
-        {pct > 0 && (
-          <span className="badge-discount absolute left-3 top-3">-{pct}%</span>
-        )}
+        {pct > 0 && <span className="badge-discount absolute left-3 top-3">-{pct}%</span>}
         {store && (
           <span
             className="absolute right-3 top-3 rounded-md px-2 py-1 text-xs font-bold text-ink"
@@ -58,7 +62,7 @@ export default function OfferCard({ offer }: { offer: Offer }) {
         </a>
 
         <Link
-          href={`/categoria/${category?.slug ?? offer.categoryId}`}
+          href={categoryHref}
           className="mt-2 text-center text-xs text-slate-400 hover:text-brand"
         >
           ver mais da categoria

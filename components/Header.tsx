@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { categories } from "@/lib/data";
+import { getCategories } from "@/lib/queries";
 
-export default function Header() {
+export default async function Header() {
+  const categories = await getCategories();
+
   return (
     <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/90 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
@@ -26,12 +28,20 @@ export default function Header() {
           ))}
         </nav>
 
-        <a
-          href="https://exemplo.com/aff/cadastro"
-          className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark"
-        >
-          Receber ofertas
-        </a>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin"
+            className="hidden rounded-lg border border-slate-300 px-3 py-2 text-sm font-semibold text-ink transition hover:bg-slate-100 sm:block"
+          >
+            Admin
+          </Link>
+          <a
+            href="https://exemplo.com/aff/cadastro"
+            className="rounded-lg bg-brand px-4 py-2 text-sm font-semibold text-white transition hover:bg-brand-dark"
+          >
+            Receber ofertas
+          </a>
+        </div>
       </div>
     </header>
   );

@@ -3,6 +3,9 @@ import "./globals.css";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
+// Site de ofertas: sempre dinâmico (nada é pré-renderizado sem o banco).
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "PromoSamuel — As melhores ofertas e promoções",
   description:

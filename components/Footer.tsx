@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { categories } from "@/lib/data";
+import { getCategories } from "@/lib/queries";
 
-export default function Footer() {
+export default async function Footer() {
+  const categories = await getCategories();
+
   return (
     <footer className="mt-16 border-t border-slate-200 bg-white">
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 md:grid-cols-3">
@@ -38,7 +40,7 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-slate-100 py-4 text-center text-xs text-slate-400">
-        © {new Date().getFullYear()} PromoSamuel · Projeto em construção (Fase 1)
+        © {new Date().getFullYear()} PromoSamuel · Fase 2 (banco de dados)
       </div>
     </footer>
   );

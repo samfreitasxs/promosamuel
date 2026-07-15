@@ -1,10 +1,20 @@
 import Link from "next/link";
 import CategoryCard from "@/components/CategoryCard";
 import OfferCard from "@/components/OfferCard";
-import { categories, getFeaturedOffers } from "@/lib/data";
+import { getCategoriesWithCounts, getFeaturedOffers, getStores } from "@/lib/queries";
 
-export default function HomePage() {
-  const featured = getFeaturedOffers(4);
+// Deals mudam o tempo todo: renderiza dinâmico (sem cache de build).
+export const dynamic = "force-dynamic";
+
+export default async function HomePage() {
+  const [cats, featured, stores] = await Promise.all([
+    getCategoriesWithCounts(),
+    getFeaturedOffers(4),
+    getStores(),
+  ]);
+
+  const storeMap = new Map(stores.map((s) => [s.id, s]));
+  const catSlugById = new Map(cats.map((c) => [c.category.id, c.category.slug]));
 
   return (
     <div>
@@ -38,12 +48,15 @@ export default function HomePage() {
 
       {/* Destaques */}
       <section className="mx-auto max-w-6xl px-4 py-10">
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-bold text-ink">🔥 Ofertas em destaque</h2>
-        </div>
+        <h2 className="mb-4 text-xl font-bold text-ink">🔥 Ofertas em destaque</h2>
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
           {featured.map((offer) => (
-            <OfferCard key={offer.id} offer={offer} />
+            <OfferCard
+              key={offer.id}
+              offer={offer}
+              store={storeMap.get(offer.storeId)}
+              categorySlug={catSlugById.get(offer.categoryId)}
+            />
           ))}
         </div>
       </section>
@@ -52,8 +65,8 @@ export default function HomePage() {
       <section id="categorias" className="mx-auto max-w-6xl px-4 py-10">
         <h2 className="mb-4 text-xl font-bold text-ink">📂 Categorias</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {categories.map((category) => (
-            <CategoryCard key={category.id} category={category} />
+          {cats.map((c) => (
+            <CategoryCard key={c.category.id} category={c.category} count={c.count} />
           ))}
         </div>
       </section>

@@ -13,10 +13,31 @@ Site de ofertas e promoções com links de afiliado — projeto em fases.
 
 ```bash
 npm install
-npm run dev      # http://localhost:3000
-npm run build    # build de produção
-npm start        # serve o build
+cp .env.example .env.local   # preencha DATABASE_URL, DIRECT_URL, ADMIN_*
+npm run db:migrate           # cria as tabelas no Postgres
+npm run db:seed              # popula com as ofertas de exemplo
+npm run dev                  # http://localhost:3000
 ```
+
+Build de produção: `npm run build && npm start`.
+
+### Banco de dados (Fase 2)
+
+- **PostgreSQL** via **Prisma** (`prisma/schema.prisma`).
+- Tabelas: `Store`, `Category`, `Offer`, `PricePoint` (histórico de preço).
+- Comandos úteis:
+  - `npm run db:migrate` — aplica migrations (dev)
+  - `npm run db:deploy` — aplica migrations em produção (usado no deploy)
+  - `npm run db:seed` — popula dados de exemplo
+  - `npm run db:studio` — abre o Prisma Studio (explorar o banco)
+- A camada de acesso fica em `lib/queries.ts` (funções `async`, com `cache()`
+  do React para evitar queries repetidas por requisição).
+
+### Painel admin
+
+- `/admin` é protegido por senha (`ADMIN_PASSWORD`) via middleware + cookie assinado.
+- `/admin/login` → autentica; `/admin` → lista e exclui; `/admin/ofertas/novo` → cadastra.
+- Geração de token em `lib/session-crypto.ts`; sessão em `lib/auth.ts`.
 
 ## Estrutura
 
@@ -24,14 +45,23 @@ npm start        # serve o build
 app/
   layout.tsx              # layout raiz (Header/Footer)
   page.tsx                # home: hero + destaques + categorias
-  categoria/[slug]/       # página de categoria (SSR estático)
+  categoria/[slug]/       # página de categoria (dinâmica)
+  admin/                  # painel: login, dashboard, nova oferta
+  actions/admin.ts        # Server Actions (login, criar, excluir oferta)
 components/
   Header.tsx Footer.tsx
   CategoryCard.tsx OfferCard.tsx
 lib/
-  types.ts                # modelo de dados (antecipa o banco)
-  data.ts                 # dados de EXEMPLO (mock)
+  types.ts                # tipos do app (Offer, Category, Store...)
+  queries.ts              # camada de acesso ao Postgres (Prisma)
+  db.ts                   # singleton do PrismaClient
+  auth.ts                 # sessão admin (cookie)
+  session-crypto.ts       # assinatura do token (Edge + Node)
   format.ts               # formatação BRL
+prisma/
+  schema.prisma           # modelo do banco
+  seed.ts / seed-data.ts  # popula dados de exemplo
+middleware.ts             # protege /admin
 ```
 
 ## Roadmap (resumo)
